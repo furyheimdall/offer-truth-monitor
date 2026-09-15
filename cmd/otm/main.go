@@ -29,6 +29,8 @@ func run(args []string, w io.Writer) int {
 		return writeHelp(w)
 	case "seats", "":
 		return writeSeats(w)
+	case "report":
+		return writeReport(w)
 	default:
 		fmt.Fprintf(w, "unknown command %q\n", cmd)
 		writeHelp(w)
@@ -45,10 +47,24 @@ Quoted ≠ checkout. / Visibility ≠ truth.
 Usage:
   otm          print package seats
   otm seats    print package seats
+  otm report   render the agency white-label report from fixture parity results
   otm help     print this help
 
 No network. Not a GEO dashboard / not a full PMS-style console.
 `)
+	return 0
+}
+
+func writeReport(w io.Writer) int {
+	in, err := report.FromCompare(report.DefaultShopifyMidSkin(), report.FixturePairs(), 0.5)
+	if err != nil {
+		fmt.Fprintf(w, "report: %v\n", err)
+		return 1
+	}
+	if err := report.Render(w, in); err != nil {
+		fmt.Fprintf(w, "report: %v\n", err)
+		return 1
+	}
 	return 0
 }
 
