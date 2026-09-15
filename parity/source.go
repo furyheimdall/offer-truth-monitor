@@ -2,7 +2,7 @@ package parity
 
 // CitedSource is a thin cited-offer port.
 //
-// engines.Adapter wires in later by mapping its CitedOffer to Offer.
+// Use AdaptCited / AdaptCitedAll to wrap engines.Adapter (Day1FromFS).
 // This seat does not implement engine adapters.
 type CitedSource interface {
 	Engine() string
@@ -11,7 +11,7 @@ type CitedSource interface {
 
 // LiveSource is a thin live-offer port.
 //
-// truth.Extractor wires in later by mapping its LiveOffer to Offer.
+// Use AdaptLive to wrap truth.Extractor (Day1FromFS).
 // This seat does not implement live extractors.
 type LiveSource interface {
 	Source() string

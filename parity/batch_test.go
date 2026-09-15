@@ -2,6 +2,7 @@ package parity
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -181,32 +182,62 @@ func TestBatchWireScaffoldEngineAndTruthFixtures(t *testing.T) {
 	res, err := Run(context.Background(), Input{
 		SKUs:  []string{"sku-1"},
 		Clock: NewFakeClock(time.Date(2026, 9, 15, 0, 0, 0, 0, time.UTC)),
-		Cited: []CitedSource{CitedFunc{
-			Name: string(eng.Name()),
-			Fn: func(sku string) (Offer, error) {
-				o, err := eng.CitedOffer(sku)
-				if err != nil {
-					return Offer{}, err
-				}
-				return Offer{SKU: o.SKU, Price: o.Price, Currency: o.Currency, Availability: o.Availability}, nil
-			},
-		}},
-		Live: LiveFunc{
-			Name: string(tr.Source()),
-			Fn: func(sku string) (Offer, error) {
-				o, err := tr.Extract(sku)
-				if err != nil {
-					return Offer{}, err
-				}
-				return Offer{SKU: o.SKU, Price: o.Price, Currency: o.Currency, Availability: o.Availability}, nil
-			},
-		},
+		Cited: []CitedSource{AdaptCited(eng)},
+		Live:  AdaptLive(tr),
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(res.Drifts) != 1 || res.Drifts[0].Reason != ReasonStock {
 		t.Fatalf("drifts = %+v", res.Drifts)
+	}
+}
+
+func TestBatchDay1FromFS(t *testing.T) {
+	ads, err := engines.Day1FromFS(os.DirFS(filepath.Join("..", "engines", "testdata")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(ads) != len(engines.Day1) {
+		t.Fatalf("adapters = %d, want %d", len(ads), len(engines.Day1))
+	}
+	exs, err := truth.Day1FromFS(os.DirFS(filepath.Join("..", "truth", "testdata")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(exs) != len(truth.Day1) {
+		t.Fatalf("extractors = %d, want %d", len(exs), len(truth.Day1))
+	}
+
+	clk := NewFakeClock(time.Date(2026, 9, 15, 9, 0, 0, 0, time.UTC))
+	for _, live := range exs {
+		slack := alert.SlackStub()
+		email := alert.EmailStub()
+		res, err := Run(context.Background(), Input{
+			SKUs:    []string{"sku-1"},
+			Epsilon: 0.5,
+			Clock:   clk,
+			Cited:   AdaptCitedAll(ads),
+			Live:    AdaptLive(live),
+			Notify:  []alert.Notifier{slack, email},
+		})
+		if err != nil {
+			t.Fatalf("live %s: %v", live.Source(), err)
+		}
+		if res.Compared != len(engines.Day1) {
+			t.Fatalf("live %s: compared = %d", live.Source(), res.Compared)
+		}
+		if len(res.Drifts) != len(engines.Day1) {
+			t.Fatalf("live %s: drifts = %+v", live.Source(), res.Drifts)
+		}
+		for _, d := range res.Drifts {
+			if d.Reason != ReasonPrice || d.Delta != 1 {
+				t.Fatalf("live %s: drift %+v", live.Source(), d)
+			}
+		}
+		if len(slack.Sent()) != 4 || len(email.Sent()) != 4 {
+			t.Fatalf("live %s: slack=%d email=%d", live.Source(), len(slack.Sent()), len(email.Sent()))
+		}
 	}
 }
 
