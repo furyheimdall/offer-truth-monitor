@@ -61,6 +61,8 @@ Day-1 engine adapters and live extractors are fixture-backed and fail closed on 
 
 ## Develop
 
+[Launch note](docs/launch-note.md)
+
 ```bash
 go test ./...
 ```
