@@ -1,0 +1,4 @@
+id	title	price	availability	sale_price
+sku-1	Widget	18.00 USD	in stock	
+sku-sale	Sale Widget	17.99 USD	in stock	15.00 USD
+incomplete	Broken	18.00 USD		

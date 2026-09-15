@@ -1,0 +1,22 @@
+{
+  "currency": "USD",
+  "products": [
+    {
+      "title": "Widget",
+      "variants": [
+        {
+          "sku": "sku-1",
+          "price": "18.00",
+          "available": true,
+          "compare_at_price": null
+        },
+        {
+          "sku": "sku-sale",
+          "price": "15.00",
+          "available": true,
+          "compare_at_price": "18.00"
+        }
+      ]
+    }
+  ]
+}

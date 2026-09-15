@@ -1,0 +1,8 @@
+{
+  "merchant_sku": "sku-sale",
+  "shopping_card": {
+    "price": { "value": "17.99", "currency": "USD" },
+    "availability": "InStock",
+    "is_sale": true
+  }
+}

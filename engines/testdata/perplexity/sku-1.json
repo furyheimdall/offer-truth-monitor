@@ -1,0 +1,12 @@
+{
+  "sku": "sku-1",
+  "citations": [
+    { "kind": "web", "url": "https://example.com" },
+    {
+      "kind": "offer",
+      "price": "19.00",
+      "currency": "USD",
+      "availability": "in_stock"
+    }
+  ]
+}

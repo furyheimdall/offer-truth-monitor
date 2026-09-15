@@ -55,7 +55,9 @@ Shopify mid-market + agency white-label
 | [`report/`](report/) | Agency white-label report seat |
 | [`cmd/otm/`](cmd/otm/) | CLI stub (prints seat names or help; no network in tests) |
 
-Stubs and fixtures are intentional until the tracked GitHub issues land. Do not add OUT-scope packages.
+[`offer/`](offer/) is the thin shared domain type (`price`, `currency`, `availability`, optional `sale`) used by `engines/` and `truth/`. It is not a product seat.
+
+Day-1 engine adapters and live extractors are fixture-backed and fail closed on unknown SKUs or missing required fields. Tests must not use the network. Do not add OUT-scope packages.
 
 ## Develop
 

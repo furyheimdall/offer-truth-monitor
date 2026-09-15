@@ -6,7 +6,11 @@
 // This is not a shopping-card API guarantee; dig-sourced engine behavior may change.
 package engines
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/furyheimdall/offer-truth-monitor/offer"
+)
 
 // Seat is the package seat name used by the CLI.
 const Seat = "engines"
@@ -25,6 +29,7 @@ const (
 var Day1 = []Engine{ChatGPTShopping, Perplexity, Gemini, Claude}
 
 // CitedOffer is the required cited shape. Sale is optional.
+// Shared fields match offer.Offer (price, currency, availability, sale).
 type CitedOffer struct {
 	SKU          string
 	Engine       Engine
@@ -34,8 +39,31 @@ type CitedOffer struct {
 	Sale         *bool
 }
 
+// Shared returns the common offer shape used by engines and truth.
+func (o CitedOffer) Shared() offer.Offer {
+	return offer.Offer{
+		SKU:          o.SKU,
+		Price:        o.Price,
+		Currency:     o.Currency,
+		Availability: o.Availability,
+		Sale:         o.Sale,
+	}
+}
+
+// FromShared wraps a normalized offer.Offer with engine provenance.
+func FromShared(eng Engine, o offer.Offer) CitedOffer {
+	return CitedOffer{
+		SKU:          o.SKU,
+		Engine:       eng,
+		Price:        o.Price,
+		Currency:     o.Currency,
+		Availability: o.Availability,
+		Sale:         o.Sale,
+	}
+}
+
 // Adapter fetches a cited offer for one SKU. Implementations in this
-// scaffold are fixture-backed and must not perform live network I/O.
+// package are fixture-backed and must not perform live network I/O.
 type Adapter interface {
 	Name() Engine
 	CitedOffer(sku string) (CitedOffer, error)
@@ -43,25 +71,16 @@ type Adapter interface {
 
 // ValidateRequired fails closed when a required cited field is missing.
 func ValidateRequired(o CitedOffer) error {
-	if o.SKU == "" {
-		return fmt.Errorf("engines: missing required field sku")
-	}
 	if o.Engine == "" {
 		return fmt.Errorf("engines: missing required field engine")
 	}
-	if o.Price == "" {
-		return fmt.Errorf("engines: missing required field price")
-	}
-	if o.Currency == "" {
-		return fmt.Errorf("engines: missing required field currency")
-	}
-	if o.Availability == "" {
-		return fmt.Errorf("engines: missing required field availability")
+	if err := offer.Validate(o.Shared()); err != nil {
+		return fmt.Errorf("engines: %w", err)
 	}
 	return nil
 }
 
-// Fixture is an in-memory adapter used until live adapters land.
+// Fixture is an in-memory adapter used until a live adapter exists.
 type Fixture struct {
 	Engine Engine
 	Offers map[string]CitedOffer
