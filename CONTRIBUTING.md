@@ -16,6 +16,8 @@ English README canon is the single source of truth for scope. Keep the locked pa
 
 Add implementation inside an existing seat. Do not invent sibling product surfaces.
 
+[`offer/`](offer/) is the shared cited/live domain type, not a product seat. Keep it thin.
+
 ## Do not open PRs for OUT scope
 
 OUT of the locked MVP (see README):

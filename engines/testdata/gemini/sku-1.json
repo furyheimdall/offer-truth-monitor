@@ -1,0 +1,7 @@
+{
+  "productSku": "sku-1",
+  "offer": {
+    "amount": { "value": 19.00, "currencyCode": "USD" },
+    "availability": "IN_STOCK"
+  }
+}
