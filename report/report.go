@@ -89,6 +89,7 @@ func Render(w io.Writer, in Input) error {
 			fmt.Fprintln(&b, formatDrift(d))
 		}
 	}
+	fmt.Fprintln(&b)
 
 	fmt.Fprintln(&b, "Quoted ≠ checkout. / Visibility ≠ truth.")
 	fmt.Fprintln(&b, "Not a GEO dashboard. Not a PMS-style console.")
