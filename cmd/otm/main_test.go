@@ -40,3 +40,16 @@ func TestSeatsList(t *testing.T) {
 		t.Fatalf("seats = %v", seats())
 	}
 }
+
+func TestReport(t *testing.T) {
+	var b strings.Builder
+	if code := run([]string{"report"}, &b); code != 0 {
+		t.Fatalf("exit %d, out=%q", code, b.String())
+	}
+	out := b.String()
+	for _, want := range []string{"agency-white-label", "shopify-mid", "price-delta", "stock-flip"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("report missing %q:\n%s", want, out)
+		}
+	}
+}

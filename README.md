@@ -52,7 +52,7 @@ Shopify mid-market + agency white-label
 | [`truth/`](truth/) | Live PDP HTML, JSON-LD Offer, GMC/feed, Shopify `products.json` |
 | [`parity/`](parity/) | Compare cited vs live; `\|Δprice\| > ε` and stock-flip |
 | [`alert/`](alert/) | Slack + email notifiers |
-| [`report/`](report/) | Agency white-label report seat |
+| [`report/`](report/) | Agency white-label report (1 kind) from parity results; Shopify mid config/docs skin |
 | [`cmd/otm/`](cmd/otm/) | CLI stub (prints seat names or help; no network in tests) |
 
 Stubs and fixtures are intentional until the tracked GitHub issues land. Do not add OUT-scope packages.
@@ -69,6 +69,7 @@ CLI (no network):
 go run ./cmd/otm
 go run ./cmd/otm help
 go run ./cmd/otm seats
+go run ./cmd/otm report
 ```
 
 ## Disclaimer
