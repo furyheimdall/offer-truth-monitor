@@ -29,13 +29,29 @@ const (
 	ReasonCurrency Reason = "currency-mismatch"
 )
 
-// Drift is one cited-vs-live mismatch that should alert.
+// Drift is one cited-vs-live mismatch.
 type Drift struct {
-	SKU    string
-	Reason Reason
-	Cited  Offer
-	Live   Offer
-	Delta  float64
+	SKU        string
+	Engine     string
+	LiveSource string
+	Reason     Reason
+	Cited      Offer
+	Live       Offer
+	Delta      float64
+}
+
+// Summary is a stable one-line description for notifier plugs.
+func (d Drift) Summary() string {
+	switch d.Reason {
+	case ReasonPrice:
+		return fmt.Sprintf("|Δprice|=%.4g > ε (cited %s %s vs live %s %s)", d.Delta, d.Cited.Price, d.Cited.Currency, d.Live.Price, d.Live.Currency)
+	case ReasonStock:
+		return fmt.Sprintf("stock-flip cited=%s live=%s", d.Cited.Availability, d.Live.Availability)
+	case ReasonCurrency:
+		return fmt.Sprintf("currency-mismatch cited=%s live=%s", d.Cited.Currency, d.Live.Currency)
+	default:
+		return string(d.Reason)
+	}
 }
 
 // Compare returns drifts for |Δprice| > epsilon or a stock-flip.

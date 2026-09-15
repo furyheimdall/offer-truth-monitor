@@ -1,10 +1,15 @@
 // Package alert is the Slack + email notifier seat.
-// Scaffold notifiers record in memory; no live network I/O.
+//
+// Day-1 plugs are Slack and email. Missing credentials stay on the in-memory
+// stub path. Tests inject fake clocks, recorders, and HTTP/mail senders —
+// no live network I/O.
 package alert
 
 import (
+	"errors"
 	"fmt"
 	"sync"
+	"time"
 )
 
 // Seat is the package seat name used by the CLI.
@@ -24,8 +29,10 @@ var Day1 = []Channel{Slack, Email}
 // Event is one parity drift to notify.
 type Event struct {
 	SKU     string
+	Engine  string
 	Reason  string
 	Summary string
+	At      time.Time
 }
 
 // Notifier delivers an alert. Implementations must be safe for tests
@@ -47,8 +54,8 @@ func (r *Recorder) Channel() Channel { return r.Ch }
 
 // Notify implements Notifier.
 func (r *Recorder) Notify(e Event) error {
-	if e.SKU == "" || e.Reason == "" {
-		return fmt.Errorf("alert: sku and reason required")
+	if err := validateEvent(e); err != nil {
+		return err
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -68,3 +75,44 @@ func (r *Recorder) Sent() []Event {
 // SlackStub and EmailStub return fixture notifiers for the two day-1 plugs.
 func SlackStub() *Recorder { return &Recorder{Ch: Slack} }
 func EmailStub() *Recorder { return &Recorder{Ch: Email} }
+
+// Dispatch fans each event out to every notifier. Partial failures join.
+func Dispatch(notifiers []Notifier, events []Event) error {
+	var errs []error
+	for _, ev := range events {
+		for _, n := range notifiers {
+			if n == nil {
+				errs = append(errs, fmt.Errorf("alert: nil notifier"))
+				continue
+			}
+			if err := n.Notify(ev); err != nil {
+				errs = append(errs, fmt.Errorf("alert: %s: %w", n.Channel(), err))
+			}
+		}
+	}
+	return errors.Join(errs...)
+}
+
+func validateEvent(e Event) error {
+	if e.SKU == "" || e.Reason == "" {
+		return fmt.Errorf("alert: sku and reason required")
+	}
+	return nil
+}
+
+// FormatText is the shared Slack/email body for one event.
+func FormatText(e Event) string {
+	eng := e.Engine
+	if eng == "" {
+		eng = "-"
+	}
+	at := ""
+	if !e.At.IsZero() {
+		at = " at " + e.At.UTC().Format(time.RFC3339)
+	}
+	sum := e.Summary
+	if sum == "" {
+		sum = e.Reason
+	}
+	return fmt.Sprintf("otm %s %s engine=%s%s: %s", e.SKU, e.Reason, eng, at, sum)
+}

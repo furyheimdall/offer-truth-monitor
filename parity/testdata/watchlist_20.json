@@ -1,0 +1,24 @@
+{
+  "skus": [
+    {"id": "sku-01", "pdp_url": "https://example.com/p/01"},
+    {"id": "sku-02", "pdp_url": "https://example.com/p/02"},
+    {"id": "sku-03", "pdp_url": "https://example.com/p/03"},
+    {"id": "sku-04", "pdp_url": "https://example.com/p/04"},
+    {"id": "sku-05", "pdp_url": "https://example.com/p/05"},
+    {"id": "sku-06", "pdp_url": "https://example.com/p/06"},
+    {"id": "sku-07", "pdp_url": "https://example.com/p/07"},
+    {"id": "sku-08", "pdp_url": "https://example.com/p/08"},
+    {"id": "sku-09", "pdp_url": "https://example.com/p/09"},
+    {"id": "sku-10", "pdp_url": "https://example.com/p/10"},
+    {"id": "sku-11", "pdp_url": "https://example.com/p/11"},
+    {"id": "sku-12", "pdp_url": "https://example.com/p/12"},
+    {"id": "sku-13", "pdp_url": "https://example.com/p/13"},
+    {"id": "sku-14", "pdp_url": "https://example.com/p/14"},
+    {"id": "sku-15", "pdp_url": "https://example.com/p/15"},
+    {"id": "sku-16", "pdp_url": "https://example.com/p/16"},
+    {"id": "sku-17", "pdp_url": "https://example.com/p/17"},
+    {"id": "sku-18", "pdp_url": "https://example.com/p/18"},
+    {"id": "sku-19", "pdp_url": "https://example.com/p/19"},
+    {"id": "sku-20", "pdp_url": "https://example.com/p/20"}
+  ]
+}
